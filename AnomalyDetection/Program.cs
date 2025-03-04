@@ -1,2 +1,58 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using Microsoft.ML;
+using Microsoft.ML.Data;
+
+namespace NetwortTrafficAnomalyDetection{
+     class Program{
+        public class NetworkTrafficData{
+                [LoadColumn(0)]
+                public string TimeStamp{get;set;}
+                [LoadColumn(1)]
+                public string SourceIP{get;set;}
+                [LoadColumn(2)]
+                public string DestinationIP{get;set;}
+                [LoadColumn(3)]
+                public string Protocol{get;set;}
+                [LoadColumn(4)]
+                public float PacketSize{get;set;}
+                [LoadColumn(5)]
+                public string Label{get;set;}
+        }  
+
+        public class NetworkTrafficPrediction{
+           [ColumnName("PredictedLabel")]
+           public uint PredictedClusterId{get;set;}
+           public float[] Score{get;set;}
+        }
+
+
+        static void Main(string[] args)
+        {
+         var mlContext = new MLContext();
+         var dataPath = "network_data.csv";
+         var dataView=mlContext.Data.LoadFromTextFile<NetworkTrafficData>(dataPath,separatorChar:',',hasHeader:true);
+         // var preview = dataView.Preview();
+         // foreach(var row in preview.RowView){
+         //    Console.WriteLine($"{row.Values[0]} | {row.Values[1]} | {row.Values[2]}");
+         var pipeline = mlContext.Transforms.Conversion.MapValueToKey("SourceIP")
+         .Append(mlContext.Transforms.Conversion.MapValueToKey("DestinationIP"))
+         .Append(mlContext.Transforms.Concatenate("Features","PacketSize"))
+         .Append(mlContext.Transforms.NormalizeMinMax("Features"))
+         .Append(mlContext.Clustering.Trainers.KMeans("Features",numberOfClusters:3));
+         var model = pipeline.Fit(dataView);
+         var predictions = model.Transform(dataView);
+         var predictedData = mlContext.Data.CreateEnumerable<NetworkTrafficPrediction>(predictions,reuseRowObject:false);
+         var actualData = mlContext.Data.CreateEnumerable<NetworkTrafficData>(dataView,reuseRowObject:false);
+         using(var predictedEnumerator = predictedData.GetEnumerator())
+          using(var actualEnumerator = actualData.GetEnumerator()){
+                while(predictedEnumerator.MoveNext() && actualEnumerator.MoveNext()){
+                        var prediction = predictedEnumerator.Current;
+                        var actual = actualEnumerator.Current;
+                        var PredictedLabel = prediction.PredictedClusterId ==1 ?"Normal" : "Anomalous" ;
+                        Console.WriteLine($"Actual Label: {actual.Label}, Predicted Label: {PredictedLabel}, Score: {string.Join(",",prediction.Score)}");
+                }
+          }
+          Console.WriteLine("Anomaly detection Complete..!");
+        }
+
+    } 
+}
