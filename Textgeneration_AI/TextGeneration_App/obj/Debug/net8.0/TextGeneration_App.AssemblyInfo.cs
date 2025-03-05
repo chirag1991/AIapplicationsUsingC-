@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TextGeneration_App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+89b232aebd71236081edc06c82583e124523c8c5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+16e5c695fa8d3a4e6707f9c6db89143573b23b73")]
 [assembly: System.Reflection.AssemblyProductAttribute("TextGeneration_App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TextGeneration_App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

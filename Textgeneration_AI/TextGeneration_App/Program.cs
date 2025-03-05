@@ -70,8 +70,9 @@ public class Program{
         var mlContext = new MLContext();
         var data = LoadData(mlContext,"input.txt");
         CreateNgramModel(data, n:2);
+        
         Console.WriteLine("Enter a staring sentence :: ");
-        string seed =Console.ReadLine();
+        string seed = Console.ReadLine();
         Console.WriteLine("Howmany Words would you like to generate ? ");
         int length = int.Parse(Console.ReadLine());
 
